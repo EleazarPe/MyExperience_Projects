@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+ <head th:replace="/thymeleaf/plantilla.html::head">
+    <head>
+        <title th:text="${titulo}">Listar</title>
+    </head>
+    <body>
+
+    <div class="container">
+        <div class="jumbotron">
+            <h1 class="display-4" th:text="${titulo}">....</h1>
+            <p class="lead">Listado de los Mock actuales</p>
+        </div>
+
+        <a href="/mockycrud/crear" class="btn btn-primary">Nuevo Mocky</a>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">url</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Metodo</th>
+                <th scope="col">Http Status</th>
+                <th scope="col">Content-Type</th>
+                <th scope="col">Expiracion</th>
+                <th scope="col">Demora</th>
+                <th scope="col">Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="mock : ${lista}">
+                <th scope="row">
+                    <a th:text="${mock.id}" th:href="'visualizar/'+${mock.id}"/>
+                </th>
+                <td > <a th:text="'api/'+${mock.nombre}+'/'+${mock.codigo}+'?token'" th:href="${url}+${mock.nombre}+'/'+${mock.codigo}+'?token=' +${jwt.generateJwt(mock)}"/></td>
+                <td th:text="${mock.nombre}"></td>
+                <td th:text="${mock.metodo}"></td>
+                <td th:text="${mock.status}"></td>
+                <td th:text="${mock.content}"></td>
+                <td th:text="${mock.expParseada()}"></td>
+                <td th:text="${mock.demora}+'s'"></td>
+                <td>
+                    <a th:text="Editar" th:href="'editar/'+${mock.id}" th class="btn btn-secondary btn-sm"/> |
+                    <a th:text="Eliminar" th:href="'eliminar/'+${mock.id}" th class="btn btn-danger btn-sm"/>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+        <!-- incluyendo la parte de javascript del template.        -->
+        <div th:replace="/thymeleaf/plantilla.html::javascript">
+
+        </div>
+
+    </body>
+
+</html>
