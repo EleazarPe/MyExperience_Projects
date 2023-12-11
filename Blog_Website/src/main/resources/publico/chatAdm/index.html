@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>SuperChat</title>
+  <link rel="stylesheet" th:href="@{/chat/assets/css/style.css}">
+
+</head>
+<body>
+<!--  <nav class="navbar navbar-dark navbar-expand-md bg-dark py-3">
+    <div class="container"><a class="navbar-brand d-flex align-items-center" href="#"><span>Brand</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-5"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-5">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+            </ul><a class="btn btn-primary ms-md-2" role="button" href="#">Button</a>
+        </div>
+    </div>
+</nav>-->
+<div class="window">
+  <aside class="conv-list-view">
+    <header class="conv-list-view__header">
+      <div class="cf">
+        <ul class="close-button-list">
+          <li></li><li></li><li></li>
+        </ul>
+        <ul class="function-list">
+          <li class="icon-lupe"></li>
+        </ul>
+      </div>
+    </header>
+    <ul class="conv-list" style="  max-height: 640px; /* Altura máxima del contenedor */
+    overflow-y: scroll;">
+      <li th:each="name : ${chatlist}"  th:onclick="redirectToPage([[${url}]],[[${name}]])">
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img th:src="@{/assets/img/userpic.png}" style="background-color: gray" />
+          </figure>
+          <div class="meta">
+            <div class="meta__name" th:text="${name}"></div>
+          </div>
+        </div>
+    </li>
+    </ul>
+  </aside>
+  <section class="chat-view">
+    <section class="message-view">
+
+    </section>
+
+  </section>
+</div>
+<footer class="credit">
+
+</footer>
+<!-- partial -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+<script>
+  function redirectToPage(url,name) {
+    window.location.href = "/chat/"+url+"_"+name+"/admin"; // Reemplaza "https://tu-url.com" con la URL a la que deseas redireccionar
+  }
+</script>
+</body>
+</html>

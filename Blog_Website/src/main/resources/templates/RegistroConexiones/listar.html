@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/templates/RegistroConexiones/plantilla.html::head">
+    <head>
+        <title th:text="${titulo}">Listar</title>
+    </head>
+<body>
+
+<div class="container">
+    <div class="jumbotron">
+        <h1 class="display-4" th:text="${titulo}">....</h1>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Fecha</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="registro : ${lista}">
+            <th scope="row">
+                <a th:text="${registro.id}" />
+            </th>
+            <td th:text="${registro.nombre}">Nombre</td>
+            <td th:text="${registro.fecha}">titulo</td>
+
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<!-- incluyendo la parte de javascript del template.        -->
+<div th:replace="/templates/RegistroConexiones/plantilla.html::javascript">
+
+</div>
+
+</body>
+
+</html>

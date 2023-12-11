@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+  <meta charset="UTF-8">
+  <title>SuperChat</title>
+  <link rel="stylesheet" th:href="@{/chat/assets/css/style.css}">
+
+  <script th:src="@{/jquery/jquery-3.2.1.min.js}"></script>
+  <script>
+    //abriendo el objeto para el websocket
+    var webSocket;
+    var tiempoReconectar = 5000;
+
+
+
+    $(document).ready(function(){
+      console.info("Iniciando Jquery -  Ejemplo WebServices");
+
+      conectar();
+
+      $("#boton").click(function(){
+        webSocket.send($("#mensajeCliente").val());
+      });
+    });
+
+    /**
+     *
+     * @param mensaje
+     */
+    function recibirInformacionServidor(mensaje){
+      console.log("Recibiendo del servidor: "+mensaje.data)
+      $("#mensajeServidor").append(mensaje.data);
+    }
+    window.addEventListener('load', function() {
+      // Send a message to the server to request messages
+      ws.send('loadMessages');
+    });
+    function conectar() {
+      var rutaActual = window.location.pathname; // Obtener la ruta actual
+      var partesRuta = rutaActual.split('/'); // Dividir la ruta en partes utilizando el separador '/'
+      var room = partesRuta[2];
+      var usuario = partesRuta[3]
+      webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/mensajeServidor"+"/"+room+"/"+usuario);
+      //indicando los eventos:
+      webSocket.onmessage = function(data){recibirInformacionServidor(data);};
+      webSocket.onopen  = function(e){ console.log("Conectado - status "+this.readyState); };
+      webSocket.onclose = function(e){
+        console.log("Desconectado - status "+this.readyState);
+      };
+
+    }
+
+    function verificarConexion(){
+      if(!webSocket || webSocket.readyState == 3){
+        conectar();
+      }
+    }
+
+    setInterval(verificarConexion, tiempoReconectar); //para reconectar.
+
+  </script>
+  <!--
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
+  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+  <link rel="stylesheet" href="assets/css/animate.min.css">
+  <link rel="stylesheet" href="assets/css/Bootstrap-Chat.css">
+  <link rel="stylesheet" href="assets/css/Navbar-Right-Links-Dark-icons.css">
+  -->
+</head>
+<body>
+<!--  <nav class="navbar navbar-dark navbar-expand-md bg-dark py-3">
+    <div class="container"><a class="navbar-brand d-flex align-items-center" href="#"><span>Brand</span></a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-5"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-5">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                <li class="nav-item"></li>
+                <li class="nav-item"></li>
+            </ul><a class="btn btn-primary ms-md-2" role="button" href="#">Button</a>
+        </div>
+    </div>
+</nav>-->
+<div class="window">
+  <!--<aside class="conv-list-view">
+    <header class="conv-list-view__header">
+      <div class="cf">
+        <ul class="close-button-list">
+          <li></li><li></li><li></li>
+        </ul>
+        <ul class="function-list">
+          <li class="icon-lupe"></li>
+        </ul>
+      </div>
+    </header>
+    <ul class="conv-list" style="  max-height: 640px; /* Altura máxima del contenedor */
+    overflow-y: scroll;">
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--unread-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/7ec0cac01b6d505b2bbb2951a722e202?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Mads Cordes</div>
+            <div class="meta__sub--dark">Hi there :)</div>
+          </div>
+        </div>
+      </li>
+      <li class="selected">
+        <div class="status">
+          <i class="status__indicator--replied-message"></i>
+          <figure class="status__avatar">
+            <img src="http://1.gravatar.com/avatar/34735b367f6bf8d5d2f38cb3d20d5e36?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">Tim Pietrusky</div>
+            <div class="meta__sub--dark">Browserhacks looks great!</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="status">
+          <i class="status__indicator--read-message"></i>
+          <figure class="status__avatar">
+            <img src="http://0.gravatar.com/avatar/729edf889ced7863dedba95452272bca?size=80"/>
+          </figure>
+          <div class="meta">
+            <div class="meta__name">HugoGiraudel</div>
+            <div class="meta__sub--dark">Ok!</div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </aside>-->
+  <section class="chat-view">
+    <header class="chat-view__header">
+      <div class="cf">
+        <div class="status">
+          <i class="status__indicator--online"></i>
+          <div class="meta">
+            <div class="meta__name">Private Chat</div>
+            <div class="meta__sub--light">...</div>
+          </div>
+        </div>
+        <ul class="function-list">
+          <li class="icon-cloud"></li>
+          <li class="icon-clock"></li>
+          <li class="icon-dots"></li>
+        </ul>
+      </div>
+    </header>
+    <section class="message-view">
+
+
+
+      <div th:each="mensaje : ${lista}" th:class="${mensaje.emisor} ? 'messagesend' : 'message'">
+        <div th:class="${mensaje.emisor} ? 'messagebubblesend' : 'messagebubble'" th:text="${mensaje.mensaje}"></div>
+      </div>
+
+
+
+      <div id="mensajeServidor"></div>
+
+    </section>
+    <footer class="chat-view__input">
+      <div><input class="input" id="mensajeCliente"></span></div>
+      <div >
+        <button class="avioncito-button" id="boton">
+          <img th:src="@{/chat/assets/img/enviar.png}" alt="Avioncito">
+        </button>
+      </div>
+    </footer>
+  </section>
+</div>
+<footer class="credit">
+
+</footer>
+<!-- partial -->
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+</body>
+</html>
