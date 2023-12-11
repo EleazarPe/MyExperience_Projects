@@ -1,0 +1,577 @@
+CREATE DATABASE SistemaArrendamiento2;
+USE SistemaArrendamiento2;
+
+
+CREATE TABLE Usuario(
+	ID_User varchar(10) NOT NULL PRIMARY KEY,
+	Nom1 varchar (15) NOT NULL,
+	Nom2 varchar (15), 
+	Ape1 varchar (15) NOT NULL, 
+	Ape2 varchar (15), 
+	Correo varchar (50),
+	Telefono varchar (10),
+	cedula varchar(10),
+	user_nick varchar(20),
+	user_pass varchar(20),
+	Clase varchar(5)
+);
+
+CREATE TABLE Cliente (
+	Id_Client varchar (10) NOT NULL PRIMARY KEY, 
+	FOREIGN KEY (Id_Client) REFERENCES Usuario(ID_User)
+);
+
+CREATE TABLE Vendedor (
+	Id_Ven varchar (10) NOT NULL PRIMARY KEY, 
+	Tipo char (1),
+	FOREIGN KEY (Id_Ven) REFERENCES Usuario(ID_User)
+);
+
+CREATE TABLE Administrador (
+	Id_Adm varchar (10) NOT NULL PRIMARY KEY,
+	FOREIGN KEY (Id_Adm) REFERENCES Usuario(ID_User)
+);
+
+CREATE TABLE Propiedad_Tipo(
+	Tip_Id varchar(10) NOT NULL PRIMARY KEY,
+	Tip_desc varchar(30)
+);
+
+CREATE TABLE Propiedad (
+	Id_Propiedad varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Ven varchar (10) FOREIGN KEY REFERENCES Vendedor(Id_Ven),
+	Tipo varchar (10) NOT NULL, 
+	Precio int,
+	Estado char (1),
+	FOREIGN KEY (Tipo) REFERENCES Propiedad_Tipo(Tip_id)
+);
+
+CREATE TABLE Facilidad(
+	Id_Facilidad varchar(10) PRIMARY KEY NOT NULL,
+	Facilidad varchar (50) NOT NULL
+);
+
+CREATE TABLE Propiedad_Faci (
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad(Id_Propiedad),
+	Id_Facilidad varchar (10) FOREIGN KEY REFERENCES Facilidad(Id_Facilidad) ,
+	PRIMARY KEY (Id_Propiedad, Id_Facilidad)
+);
+
+CREATE TABLE Propiedad_Dir (
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad(Id_Propiedad),
+	Calle varchar (30) NOT NULL,
+	Casa varchar (3) NOT NULL,
+	Ciudad varchar (15) NOT NULL,
+	PRIMARY KEY (Id_Propiedad)
+);
+
+CREATE TABLE Imagen (
+	URLimag varchar (255) NOT NULL PRIMARY KEY, 
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad (Id_Propiedad)
+);
+
+CREATE TABLE Reserva (
+	Id_Reserva varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Cliente varchar (10) FOREIGN KEY REFERENCES Cliente(Id_Client),
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad(Id_Propiedad),
+	Fecha_Reserva date, 
+	Check_in datetime,
+	Check_out datetime,
+	Costo int,
+);
+
+CREATE TABLE Factura (
+	Id_Factura varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Cliente varchar (10) FOREIGN KEY  REFERENCES Cliente (Id_Client),
+	Id_Reserva varchar (10)FOREIGN KEY REFERENCES Reserva(Id_Reserva),
+	Id_Ven varchar (10) FOREIGN KEY REFERENCES Vendedor(Id_Ven),
+	Fecha_Factura datetime DEFAULT GETDATE(), 
+	Monto int 
+);
+
+CREATE TABLE Retroalimentacion (
+	Id_Ret varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Cliente varchar (10) FOREIGN KEY  REFERENCES Cliente (Id_Client),
+	Id_Propiedad varchar (10) FOREIGN KEY  REFERENCES Propiedad (Id_Propiedad),
+	Comentario varchar (255),
+);
+
+ 
+CREATE TABLE Historial(
+  Id_User varchar(10) NOT NULL,
+  Id_Propiedad varchar(10) NOT NULL,
+  Id_Factura varchar(10) NOT NULL,
+  PRIMARY KEY(Id_User, Id_Propiedad, Id_Factura),
+  FOREIGN KEY (Id_User) REFERENCES CLiente(Id_Client),
+  FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad),
+  FOREIGN KEY (Id_Factura) REFERENCES Factura(Id_Factura)
+
+);
+
+
+Create table CurrentUser (
+	ID_User varchar(10) NOT NULL,
+	user_nick varchar(20) NOT NULL,
+	PRIMARY KEY (ID_User, user_nick)
+ 
+)
+
+CREATE TABLE Autorizar_Post(
+  Id_aut varchar(10) NOT NULL PRIMARY KEY,
+  Id_Usuario varchar(10),
+  Id_Propiedad varchar(10),
+  Id_Admin varchar(10),
+  FOREIGN KEY (Id_Usuario) REFERENCES Usuario(ID_User),
+  FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad),
+  FOREIGN KEY (Id_Admin) REFERENCES Administrador(Id_Adm)
+);
+
+ALTER TABLE Cliente
+ADD CONSTRAINT FK_Cliente_Usuario
+FOREIGN KEY (Id_Client) REFERENCES Usuario(ID_User);
+
+ALTER TABLE Vendedor
+ADD CONSTRAINT FK_Vendedor_Usuario
+FOREIGN KEY (Id_Ven) REFERENCES Usuario(ID_User);
+
+ALTER TABLE Administrador
+ADD CONSTRAINT FK_Admin_Usuario
+FOREIGN KEY (Id_Adm) REFERENCES Usuario(ID_User);
+
+ALTER TABLE Propiedad
+ADD CONSTRAINT FK_Propiedad_Vendedor
+FOREIGN KEY (Id_Ven) REFERENCES Vendedor(Id_Ven);
+
+ALTER TABLE Propiedad_Faci
+ADD CONSTRAINT FK_PropiedadFaci_Propiedad
+FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad);
+
+ALTER TABLE Propiedad_Faci
+ADD CONSTRAINT FK_PropiedadFaci_Facilidad
+FOREIGN KEY (Id_Facilidad) REFERENCES Facilidad(Id_Facilidad);
+
+ALTER TABLE Propiedad_Dir
+ADD CONSTRAINT FK_PropiedadDir_Propiedad
+FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad);
+
+ALTER TABLE Imagen
+ADD CONSTRAINT FK_Imagen_Propiedad
+FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad);
+
+ALTER TABLE Reserva
+ADD CONSTRAINT FK_Reserva_Cliente
+FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id_Client);
+
+ALTER TABLE Reserva
+ADD CONSTRAINT FK_Reserva_Propiedad
+FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad);
+
+ALTER TABLE Factura
+ADD CONSTRAINT FK_Factura_Cliente
+FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id_Client);
+
+ALTER TABLE Factura
+ADD CONSTRAINT FK_Factura_Reserva
+FOREIGN KEY (Id_Reserva) REFERENCES Reserva(Id_Reserva);
+
+ALTER TABLE Factura
+ADD CONSTRAINT FK_Factura_Vendedor
+FOREIGN KEY (Id_Ven) REFERENCES Vendedor(Id_Ven);
+
+ALTER TABLE Retroalimentacion
+ADD CONSTRAINT FK_Retroalimentacion_Cliente
+FOREIGN KEY (Id_Cliente) REFERENCES Cliente(Id_Client);
+
+ALTER TABLE Retroalimentacion
+ADD CONSTRAINT FK_Retroalimentacion_Propiedad
+FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad);
+
+ALTER TABLE Historial
+ADD CONSTRAINT FK_Historial_Cliente
+FOREIGN KEY (Id_User) REFERENCES Cliente(Id_Client);
+
+ALTER TABLE Historial
+ADD CONSTRAINT FK_Historial_Propiedad
+FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad);
+
+ALTER TABLE Historial
+ADD CONSTRAINT FK_Historial_Factura
+FOREIGN KEY (Id_Factura) REFERENCES Factura(Id_Factura);
+
+ALTER TABLE Autorizar_Post
+ADD CONSTRAINT FK_AutorizarPost_Usuario
+FOREIGN KEY (Id_Usuario) REFERENCES Usuario(ID_User);
+
+ALTER TABLE Autorizar_Post
+ADD CONSTRAINT FK_AutorizarPost_Propiedad
+FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad);
+
+ALTER TABLE CurrentUser
+ADD CONSTRAINT FK_CurrentUser_Usuario
+FOREIGN KEY (ID_User) REFERENCES Usuario(ID_User);
+
+
+-------------------------------------------------Store Procedure-------------------------------------------------
+
+
+CREATE OR ALTER PROCEDURE sp_buscarpropiedad_byId (
+    @user_id VARCHAR(10)
+)
+AS
+BEGIN
+SELECT P.Id_Propiedad, P.Tipo, P.Precio, P.Estado, PD.Casa+' ' +  Calle+ ' ' + Ciudad as Direccion FROM Propiedad as P JOIN Propiedad_Dir as PD ON PD.Id_Propiedad = P.Id_Propiedad WHERE P.Id_Ven = @user_id;
+END;
+
+EXEC sp_buscarpropiedad_byId '10001';
+
+
+CREATE OR ALTER PROCEDURE sp_EliminarPropiedad (
+    @propiedad_id VARCHAR(10)
+)
+AS
+BEGIN
+DELETE FROM Imagen WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad_Faci WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad_Dir WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad WHERE Id_Propiedad = @propiedad_id;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_CargarPropiedad (
+    @propiedad_id VARCHAR(10)
+)
+AS
+BEGIN
+	SELECT P.Precio, PD.Casa, PD.Calle, PD.Ciudad, P.Estado 
+	FROM Propiedad AS P 
+	JOIN Propiedad_Dir AS PD 
+	ON PD.Id_Propiedad = P.Id_Propiedad
+	WHERE P.Id_Propiedad = @propiedad_id;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_obtener_id(
+    @user_nick VARCHAR(20))
+AS
+BEGIN
+    DECLARE @id_usuario VARCHAR(10) = 'No encontrado';
+    DECLARE @contador INT = 0;
+
+    SELECT @id_usuario = ID_User FROM Usuario WHERE user_nick = @user_nick;
+
+    SELECT @id_usuario AS IdUsuario;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_guardar_current_user(
+    @user_nick VARCHAR(20)
+)
+AS
+BEGIN
+    DECLARE @id_usuario VARCHAR(10) = 'No encontrado';
+    DECLARE @contador INT = (SELECT COUNT(*) FROM CurrentUser);
+
+    SELECT @id_usuario = ID_User FROM Usuario WHERE user_nick = @user_nick;
+
+
+       IF (@contador >= 1)
+			DELETE FROM CurrentUser WHERE ID_User = (SELECT TOP(1) ID_User FROM CurrentUser ORDER BY fecha ASC);
+
+
+        INSERT INTO CurrentUser (ID_User, user_nick) VALUES (@id_usuario, @user_nick);
+    
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_generar_id_propiedad
+AS
+BEGIN
+    DECLARE @id_propiedad VARCHAR(10);
+    SELECT @id_propiedad = CONCAT('P', FORMAT((SELECT COUNT(*)+1 FROM Propiedad), 'D4'));
+    SELECT @id_propiedad AS Id_Propiedad;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_insertar_propiedad
+	@Id_Propiedad VARCHAR(10),
+    @id_ven VARCHAR(10),
+    @tipo VARCHAR(10),
+    @precio INT,
+	@calle VARCHAR(30),
+    @casa VARCHAR(3),
+    @ciudad VARCHAR(15)
+AS
+BEGIN
+    INSERT INTO Propiedad VALUES (@Id_Propiedad, @id_ven, @tipo, @precio, 'D');
+INSERT INTO Propiedad_Dir VALUES (@Id_Propiedad, @calle, @casa, @ciudad);
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_validar_inicio_sesion (
+    @user_nick VARCHAR(20),
+    @user_pass VARCHAR(20),
+    @resultado BIT OUTPUT
+)
+AS
+BEGIN
+    DECLARE @id_usuario VARCHAR(10);
+    
+    SELECT @id_usuario = ID_User 
+    FROM Usuario 
+    WHERE user_nick = @user_nick AND user_pass = @user_pass;
+
+    IF @id_usuario IS NOT NULL
+        SET @resultado = 1;
+    ELSE
+        SET @resultado = 0;
+END;
+SELECT * FROM Usuario;
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_obtener_tipo_usuarioVendedor(
+    @id_usuario VARCHAR(10))
+AS
+BEGIN
+    DECLARE @tipo_usuario int = 0;
+    DECLARE @contador INT = 0;
+
+        SELECT @contador = COUNT(*) FROM Vendedor WHERE Id_Ven = @id_usuario;
+
+        IF @contador > 0
+            SET @tipo_usuario = 1;
+
+    SELECT @tipo_usuario AS TipoUsuario;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_modificarPropiedad
+    @Id_Propiedad varchar(10),
+    @Id_Ven varchar(10),
+    @Tipo varchar(10),
+    @Precio int,
+    @Estado char(1),
+    @Calle varchar(30),
+    @Casa varchar(3),
+    @Ciudad varchar(15)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    UPDATE Propiedad
+    SET Id_Ven = @Id_Ven,
+        Tipo = @Tipo,
+        Precio = @Precio,
+        Estado = @Estado
+    WHERE Id_Propiedad = @Id_Propiedad;
+    
+    UPDATE Propiedad_Dir
+    SET Calle = @Calle,
+        Casa = @Casa,
+        Ciudad = @Ciudad
+    WHERE Id_Propiedad = @Id_Propiedad;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_buscarpropiedad_byId (
+    @user_id VARCHAR(10)
+)
+AS
+BEGIN
+SELECT P.Id_Propiedad, P.Tipo, P.Precio, P.Estado, PD.Casa+' ' +  Calle+ ' ' + Ciudad as Direccion FROM Propiedad as P JOIN Propiedad_Dir as PD ON PD.Id_Propiedad = P.Id_Propiedad WHERE P.Id_Ven = @user_id;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_EliminarPropiedad (
+    @propiedad_id VARCHAR(10)
+)
+AS
+BEGIN
+DELETE FROM Imagen WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad_Faci WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad_Dir WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad WHERE Id_Propiedad = @propiedad_id;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_eliminar_usuarioF(
+    @id_usuario VARCHAR(10))
+AS
+BEGIN
+	DELETE FROM Usuario WHERE ID_User = @id_usuario;
+END;
+
+
+CREATE OR ALTER PROCEDURE sp_eliminar_CurrentUser
+AS
+BEGIN
+	DELETE FROM CurrentUser;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_insertar_usuario (
+    @nom1 VARCHAR(15),
+    @nom2 VARCHAR(15),
+    @ape1 VARCHAR(15),
+    @ape2 VARCHAR(15),
+    @correo VARCHAR(50),
+    @telefono VARCHAR(10),
+    @cedula VARCHAR(10),
+    @user_nick VARCHAR(20),
+    @user_pass VARCHAR(20),
+    @clase VARCHAR(5),
+	@tipo_propietario VARCHAR (1)
+)
+AS
+BEGIN
+    DECLARE @nuevo_id VARCHAR(10);
+
+    -- Obtener el último ID de usuario
+    SELECT TOP 1 @nuevo_id = ID_User FROM Usuario ORDER BY ID_User DESC;
+
+    -- Generar el nuevo ID de usuario
+    IF @nuevo_id IS NULL
+        SET @nuevo_id = 'U0001';
+    ELSE
+        SET @nuevo_id = 'U' + RIGHT('0000' + CAST(SUBSTRING(@nuevo_id, 3, 4) + 1 AS VARCHAR(4)), 4);
+
+    -- Insertar el nuevo registro a USUARIO con el nuevo ID generado
+    INSERT INTO Usuario VALUES (@nuevo_id, @nom1, @nom2, @ape1, @ape2, @correo, @telefono, @cedula, @user_nick, @user_pass, @clase);
+
+	IF @clase = 'C'
+        INSERT INTO Cliente VALUES (@nuevo_id);
+    ELSE IF @clase = 'B'
+        INSERT INTO Vendedor VALUES (@nuevo_id, @tipo_propietario);
+    ELSE IF @clase = 'A'
+        INSERT INTO Administrador VALUES (@nuevo_id);
+
+
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_validar_usernick (
+    @user_nick VARCHAR(20)
+)
+AS
+BEGIN
+    DECLARE @tipo_usuario BIT = 0;
+    DECLARE @contador INT = 0;
+
+    SELECT @contador = COUNT(*) FROM Usuario WHERE user_nick = @user_nick;
+
+    IF @contador > 0
+        SET @tipo_usuario = 1;
+
+    SELECT @tipo_usuario AS TipoUsuario;
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_registrar_facilidad_propiedad (
+    @id_propiedad varchar(10),
+    @id_facilidad varchar(10)
+)
+AS
+BEGIN
+    INSERT INTO Propiedad_Faci (Id_Propiedad, Id_Facilidad)
+    VALUES (@id_propiedad, @id_facilidad);
+END;
+
+CREATE OR ALTER PROCEDURE sp_CargarPropiedadParaRent (
+    @propiedad_id VARCHAR(10)
+)
+AS
+BEGIN
+    SELECT P.Precio, PD.Casa, PD.Calle, PD.Ciudad, P.Estado, U.Nom1 + ' ' + U.Ape1 AS Nombre_Vendedor
+    FROM Propiedad AS P 
+    JOIN Propiedad_Dir AS PD ON PD.Id_Propiedad = P.Id_Propiedad
+    JOIN Vendedor AS V ON V.Id_Ven = P.Id_Ven
+    JOIN Usuario AS U ON U.ID_User = V.Id_Ven
+    WHERE P.Id_Propiedad = @propiedad_id;
+END;
+
+******************************************************************************************************************
+
+
+CREATE OR ALTER PROCEDURE sp_CargarFacilidades (
+    @propiedad_id VARCHAR(10)
+)
+AS
+BEGIN
+    SELECT F.Facilidad
+    FROM Propiedad_Faci AS PF 
+    JOIN Facilidad AS F ON F.Id_Facilidad = PF.Id_Facilidad
+    WHERE PF.Id_Propiedad = @propiedad_id;
+END;
+
+EXEC sp_CargarFacilidades 'PROP001'
+
+CREATE PROCEDURE ObtenerRetroalimentacion
+    @id_propiedad varchar(10)
+AS
+BEGIN
+    SELECT c.Nom1 + ' ' + c.Ape1 AS 'Nombre del Cliente', r.Comentario
+    FROM Retroalimentacion r
+    INNER JOIN Cliente cl ON r.Id_Cliente = cl.Id_Client
+    INNER JOIN Usuario c ON cl.Id_Client = c.ID_User
+    WHERE r.Id_Propiedad = @id_propiedad
+END;
+
+******************************************************************************************************************
+
+CREATE PROCEDURE sp_obtener_propiedad_con_direccion(
+    @Id_Propiedad varchar(10)
+)
+AS
+BEGIN
+    SELECT 
+        p.Id_Propiedad, 
+        p.Tipo, 
+        p.Estado, 
+        pd.Calle + ' ' + pd.Casa + ', ' + pd.Ciudad AS Direccion,
+        p.Precio
+    FROM Propiedad p
+    INNER JOIN Propiedad_Dir pd ON p.Id_Propiedad = pd.Id_Propiedad
+    WHERE p.Id_Propiedad = @Id_Propiedad
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_InsertarAutorizacionPost (
+    @Id_aut varchar(10),
+    @Id_Usuario varchar(10),
+    @Id_Propiedad varchar(10),
+    @Id_Admin varchar(10)
+)
+AS
+BEGIN
+    INSERT INTO Autorizar_Post (Id_aut, Id_Usuario, Id_Propiedad, Id_Admin)
+    VALUES (@Id_aut, @Id_Usuario, @Id_Propiedad, @Id_Admin)
+END;
+
+******************************************************************************************************************
+
+CREATE OR ALTER PROCEDURE sp_PropiedadesAutorizada
+AS
+BEGIN
+	SELECT Propiedad.*, COUNT(*) AS [Count]
+	FROM Propiedad
+	INNER JOIN Autorizar_Post
+	ON Propiedad.Id_Propiedad = Autorizar_Post.Id_Propiedad
+	GROUP BY Propiedad.Id_Propiedad, Propiedad.Id_Ven, Propiedad.Tipo, Propiedad.Precio, Propiedad.Estado
+	HAVING COUNT(*) >= 1;
+END;
+
+EXEC sp_PropiedadesAutorizada;
+

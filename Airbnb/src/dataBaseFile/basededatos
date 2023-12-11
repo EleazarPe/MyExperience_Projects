@@ -1,0 +1,297 @@
+CREATE DATABASE SistemaArrendamiento;
+DROP DATABASE SistemaArrendamiento;
+USE SistemaArrendamiento;
+
+CREATE TABLE Usuario(
+	ID_User varchar(10) NOT NULL PRIMARY KEY,
+	Nom1 varchar (15) NOT NULL,
+	Nom2 varchar (15), 
+	Ape1 varchar (15) NOT NULL, 
+	Ape2 varchar (15), 
+	Correo varchar (50),
+	Telefono varchar (10),
+	cedula varchar(10),
+	user_nick varchar(20),
+	user_pass varchar(20),
+	Clase varchar(5)
+);
+
+
+CREATE TABLE Cliente (
+	Id_Client varchar (10) NOT NULL PRIMARY KEY, 
+	FOREIGN KEY (Id_Client) REFERENCES Usuario(ID_User)
+);
+
+
+CREATE TABLE Vendedor (
+	Id_Ven varchar (10) NOT NULL PRIMARY KEY, 
+	Tipo char (1),
+	FOREIGN KEY (Id_Ven) REFERENCES Usuario(ID_User)
+);
+
+
+CREATE TABLE Administrador (
+	Id_Adm varchar (10) NOT NULL PRIMARY KEY,
+	FOREIGN KEY (Id_Adm) REFERENCES Usuario(ID_User)
+);
+
+
+CREATE TABLE Propiedad_Tipo(
+	Tip_Id varchar(10) NOT NULL PRIMARY KEY,
+	Tip_desc varchar(30)
+);
+
+CREATE TABLE Propiedad (
+	Id_Propiedad varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Ven varchar (10) FOREIGN KEY REFERENCES Vendedor(Id_Ven),
+	Tipo varchar (10) NOT NULL, 
+	Precio int,
+	Estado char (1),
+	FOREIGN KEY (Tipo) REFERENCES Propiedad_Tipo(Tip_id)
+);
+--chequear constraint
+
+CREATE TABLE Facilidad(
+	Id_Facilidad varchar(10) PRIMARY KEY NOT NULL,
+	Facilidad varchar (50) NOT NULL
+);
+
+CREATE TABLE Propiedad_Faci (
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad(Id_Propiedad),
+	Id_Facilidad varchar (50) FOREIGN KEY REFERENCES Facilidad(Id_Facilidad) ,
+	PRIMARY KEY (Id_Propiedad, Id_Facilidad)
+);
+
+
+CREATE TABLE Propiedad_Dir (
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad(Id_Propiedad),
+	Calle varchar (30) NOT NULL,
+	Casa varchar (3) NOT NULL,
+	Ciudad varchar (15) NOT NULL,
+	PRIMARY KEY (Id_Propiedad)
+);
+
+CREATE TABLE Imagen (
+	URLimag varchar (255) NOT NULL PRIMARY KEY, 
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad (Id_Propiedad)
+);
+
+CREATE TABLE Reserva (
+	Id_Reserva varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Cliente varchar (10) FOREIGN KEY REFERENCES Cliente(Id_Client),
+	Id_Propiedad varchar (10) FOREIGN KEY REFERENCES Propiedad(Id_Propiedad),
+	Fecha_Reserva date, 
+	Check_in datetime,
+	Check_out datetime,
+	Costo int,
+);
+
+CREATE TABLE Factura (
+	Id_Factura varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Cliente varchar (10) FOREIGN KEY  REFERENCES Cliente (Id_Client),
+	Id_Reserva varchar (10)FOREIGN KEY REFERENCES Reserva(Id_Reserva),
+	Id_Ven varchar (10) FOREIGN KEY REFERENCES Vendedor(Id_Ven),
+	Fecha_Factura datetime DEFAULT GETDATE(), 
+	Monto int 
+);
+
+CREATE TABLE Retroalimentacion (
+	Id_Ret varchar (10) NOT NULL PRIMARY KEY, 
+	Id_Cliente varchar (10) FOREIGN KEY  REFERENCES Cliente (Id_Client),
+	Id_Propiedad varchar (10) FOREIGN KEY  REFERENCES Propiedad (Id_Propiedad),
+	Comentario varchar (255),
+);
+
+--Historial para controlar si un usuario puede comentar el lugar 
+CREATE TABLE Historial(
+  Id_User varchar(10) NOT NULL,
+  Id_Propiedad varchar(10) NOT NULL,
+  Id_Factura varchar(10) NOT NULL,
+  PRIMARY KEY(Id_User, Id_Propiedad, Id_Factura),
+  FOREIGN KEY (Id_User) REFERENCES CLiente(Id_Client),
+  FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad),
+  FOREIGN KEY (Id_Factura) REFERENCES Factura(Id_Factura)
+
+);
+
+CREATE TABLE Autorizar_Post(
+  Id_aut varchar(10) NOT NULL PRIMARY KEY,
+  Id_Usuario varchar(10),
+  Id_Propiedad varchar(10),
+  FOREIGN KEY (Id_Usuario) REFERENCES Usuario(ID_User),
+  FOREIGN KEY (Id_Propiedad) REFERENCES Propiedad(Id_Propiedad)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ALTER TABLE Usuario 
+ADD CONSTRAINT check_User CHECK ( ID_User NOT LIKE '%[^A-Z a-z 0-9]%' AND Nom1 NOT LIKE '%[^A-Za-z]%' 
+AND Nom2  NOT LIKE '%[^A-Za-z]%' AND Ape1  NOT LIKE '%[^A-Za-z]%' AND Ape2 NOT LIKE '%[^A-Za-z]%' AND cedula NOT LIKE '%[^0-9]%'
+AND Telefono NOT LIKE '%[^0-9]%');
+
+
+ALTER TABLE Cliente 
+ADD CONSTRAINT check_Cliente CHECK ( Id_Client NOT LIKE '%[^A-Z a-z 0-9]%');
+
+
+ALTER TABLE Vendedor 
+ADD CONSTRAINT check_Vendedor CHECK ( Id_Ven NOT LIKE '%[^A-Z a-z 0-9]%' AND Tipo LIKE '[PE]')
+
+
+ALTER TABLE Administrador  
+ADD CONSTRAINT check_Adm CHECK ( Id_Adm NOT LIKE '%[^A-Z a-z 0-9]%');
+
+ALTER TABLE Propiedad_Faci 
+ADD CONSTRAINT check_Facilidades CHECK ( Facilidad  NOT LIKE '%[^A-Za-z]%' );
+
+
+--La factura se genera automatico no necesita constraint...
+ALTER TABLE Reserva  
+ADD CONSTRAINT check_Reserva CHECK ( Id_Reserva NOT LIKE '%[^A-Z a-z 0-9]%' AND Costo > 0 AND Fecha_Reserva >= GETDATE()
+AND Check_in >= GETDATE() AND Check_out >= GETDATE());
+
+
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10001', 'Juan', 'Carlos', 'Pérez', 'García', 'juan.perez@gmail.com', '555-1234', '1234567890', 'jcperez', 'password1', 'A');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10002', 'Ana', NULL, 'González', 'López', 'ana.gonzalez@gmail.com', '555-5678', '2345678901', 'anagon', 'password2', 'B');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10003', 'Pedro', NULL, 'Rodríguez', NULL, 'pedro.rodriguez@gmail.com', '555-9876', '3456789012', 'prodriguez', 'password3', 'C');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10004', 'María', 'Isabel', 'García', 'Fernández', 'maria.garcia@gmail.com', '555-4321', '4567890123', 'migarcia', 'password4', 'A');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10005', 'Luis', NULL, 'Hernández', 'Sánchez', 'luis.hernandez@gmail.com', '555-8765', '5678901234', 'luishern', 'password5', 'B');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10006', 'Laura', 'María', 'Pérez', 'Jiménez', 'laura.perez@gmail.com', '555-2143', '6789012345', 'lmpj', 'password6', 'C');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10007', 'Fernando', 'José', 'González', 'Santos', 'fernando.gonzalez@gmail.com', '555-8765', '7890123456', 'fgonzalez', 'password7', 'A');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10008', 'Marta', NULL, 'Ruiz', 'Martínez', 'marta.ruiz@gmail.com', '555-4321', '8901234567', 'martaruiz', 'password8', 'B');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10009', 'Antonio', 'José', 'Sánchez', 'Pérez', 'antonio.sanchez@gmail.com', '555-5678', '9012345678', 'ajsanchez', 'password9', 'C');
+INSERT INTO Usuario(ID_User, Nom1, Nom2, Ape1, Ape2, Correo, Telefono, cedula, user_nick, user_pass, Clase ) VALUES ('10010', 'Isabel', NULL, 'Jiménez', 'López', 'isabel.jimenez@gmail.com', '555-1234', '0123456789', 'ijlopez', 'password10', 'A');
+
+SELECT * FROM Usuario;
+
+INSERT Administrador(Id_Adm) VALUES('10001');
+
+
+CREATE OR ALTER PROCEDURE sp_obtener_tipo_usuario(
+    @id_usuario VARCHAR(10))
+AS
+BEGIN
+    DECLARE @tipo_usuario VARCHAR(20) = 'No encontrado';
+    DECLARE @contador INT = 0;
+
+    SELECT @contador = COUNT(*) FROM Cliente WHERE Id_Client = @id_usuario;
+
+    IF @contador > 0
+        SET @tipo_usuario = 'Cliente';
+    ELSE
+    BEGIN
+        SELECT @contador = COUNT(*) FROM Vendedor WHERE Id_Ven = @id_usuario;
+
+        IF @contador > 0
+            SET @tipo_usuario = 'Vendedor';
+        ELSE
+        BEGIN
+            SELECT @contador = COUNT(*) FROM Administrador WHERE Id_Adm = @id_usuario;
+
+            IF @contador > 0
+                SET @tipo_usuario = 'Administrador';
+        END
+    END
+
+    SELECT @tipo_usuario AS TipoUsuario;
+END;
+
+EXEC sp_obtener_tipo_usuario '10001';
+
+
+
+CREATE OR ALTER PROCEDURE sp_validar_usernick (
+    @user_nick VARCHAR(20)
+)
+AS
+BEGIN
+    DECLARE @tipo_usuario BIT = 0;
+    DECLARE @contador INT = 0;
+
+    SELECT @contador = COUNT(*) FROM Usuario WHERE user_nick = @user_nick;
+
+    IF @contador > 0
+        SET @tipo_usuario = 1;
+
+    SELECT @tipo_usuario AS TipoUsuario;
+END;
+
+EXEC sp_validar_usernick 'jcperez';
+
+CREATE OR ALTER PROCEDURE sp_buscarpropiedad_byId (
+    @user_id VARCHAR(10)
+)
+AS
+BEGIN
+SELECT P.Id_Propiedad, P.Tipo, P.Precio, P.Estado, PD.Casa+' ' +  Calle+ ' ' + Ciudad as Direccion FROM Propiedad as P JOIN Propiedad_Dir as PD ON PD.Id_Propiedad = P.Id_Propiedad WHERE P.Id_Ven = @user_id;
+END;
+
+EXEC sp_buscarpropiedad_byId '10001';
+
+
+
+CREATE OR ALTER PROCEDURE sp_EliminarPropiedad (
+    @propiedad_id VARCHAR(10)
+)
+AS
+BEGIN
+DELETE FROM Imagen WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad_Faci WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad_Dir WHERE Id_Propiedad = @propiedad_id;
+DELETE FROM Propiedad WHERE Id_Propiedad = @propiedad_id;
+END;
+EXEC sp_EliminarPropiedad '';
+
+
+CREATE OR ALTER PROCEDURE sp_eliminar_usuarioF(
+    @id_usuario VARCHAR(10))
+AS
+BEGIN
+	DELETE FROM Usuario WHERE ID_User = @id_usuario;
+END;
+
+
